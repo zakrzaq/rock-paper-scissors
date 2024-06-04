@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
-from game import Game
+from flask_cors import CORS
+from game import Game  # type: ignore
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 game = Game()
 
 
@@ -35,6 +37,7 @@ def status():
         "player_score": game.player_score,
         "cpu_score": game.cpu_score,
         "is_active": game.is_active,
+        "player": game.player
     }
     return jsonify(status), 200
 

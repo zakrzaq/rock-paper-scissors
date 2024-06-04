@@ -109,6 +109,7 @@ class Game:
                 result = "tie"
         elif choice == "exit":
             self.is_active = False
+            self.player = None
             result = "exit"
 
         return {

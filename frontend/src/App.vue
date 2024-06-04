@@ -1,23 +1,70 @@
 <script setup lang="ts">
+import {ref, onMounted} from 'vue'
+import { useFetch, usePost } from './api'
+import { Status } from './types'
+
+const status = ref<Status | null>(null)
+const player = ref<string | null>(null)
+const result = ref<string | null>(null)
+
+const submitPlayer = async () => {
+  if (player.value) {
+    const response = usePost('/add_player', {player: player.value})
+    const { data } = await useFetch('/status')
+    status.value = data
+  }
+}
+
+const playGame = async (choice: string) => {
+  const { data } = await usePost('/play', {choice})
+  result.value = data
+}
+
+const exitGame = async () => {
+  usePost('/play', {choice: 'exit'})
+  const { data } = await useFetch('/status')
+  status.value = data
+}
+
+onMounted(async () => {
+  const { data } = await useFetch('/status')
+  status.value = data
+})
 </script>
 
 <template>
   <div>
-    hello
+    <h2>Rock - Paper - Scissors</h2>
+    <div v-if="!!status && !status.player">
+      <input 
+        type="text" 
+        name="player" 
+        id="player" 
+        placeholder="Enter your name..."  
+        @change="(e) => (player = e.target.value)" 
+      />
+      <button @click="submitPlayer">Submit</button>
+    </div>
+
+    <div v-if="!!status && status.player">
+      <div>
+        <p>Player score: {{result?.player_score}}</p>
+        <p>CPU score: {{result?.cpu_score}}</p>
+      </div>
+      <div>
+        <button @click="playGame('rock')">Rock</button>
+        <button @click="playGame('paper')">Paper</button>
+        <button @click="playGame('scissors')">Scissor</button>
+      </div>
+      <p v-if="!!result">You chose: {{result.player_choice}} and CPU chose: {{result.cpu_choice}}</p>
+      <p v-if="!!result">Result: {{result.result}}</p>
+
+    </div>
+
+    <div v-if="!!status && !!status.player">
+      <button @click="exitGame">Exit</button>
+    </div>
   </div>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+<style scoped></style>
