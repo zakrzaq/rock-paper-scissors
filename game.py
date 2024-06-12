@@ -1,9 +1,10 @@
 import random
+from typing import Union
 
 
 class Game:
     def __init__(self):
-        self.player: str | None = None
+        self.player: Union[str, None] = "Player"
         self.player_score: int = 0
         self.cpu_score: int = 0
         self.is_active: bool = True
@@ -11,7 +12,7 @@ class Game:
     def add_player(self, player) -> None:
         self.player = player
 
-    def get_item(self, n: int | None = None) -> str:
+    def get_item(self, n: Union[str, None]) -> str:
         selection = random.randint(1, 3)
         if n:
             selection = n
@@ -77,7 +78,7 @@ class Game:
         print("\n" + output)
 
     def play_round(self, choice):
-        cpu_choice = self.get_item()
+        cpu_choice = self.get_item(None)
         result = ""
 
         if choice == "rock":

@@ -3,8 +3,17 @@ from flask_cors import CORS
 from game import Game
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:5173", "https://jukesites.com"]
+    }
+})
 game = Game()
+
+
+@app.route("/health_check")
+def health():
+    return jsonify({"name": "rock-paper-scissors", "version": "", "status": "OK"}), 200
 
 
 @app.route("/add_player", methods=["POST"])
@@ -34,10 +43,10 @@ def play():
 @app.route("/status", methods=["GET"])
 def status():
     status = {
-        "player_score": game.player_score,
-        "cpu_score": game.cpu_score,
-        "is_active": game.is_active,
-        "player": game.player
+        "player_score": game.player_score if game.player_score else None,
+        "cpu_score": game.cpu_score if game.cpu_score else None,
+        "is_active": game.is_active if game.is_active else None,
+        "player": game.player if game.player else None,
     }
     return jsonify(status), 200
 
