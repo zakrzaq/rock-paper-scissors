@@ -7,3 +7,5 @@ Venv/
 VENV/
 node_modules/
 **/node_modules/
+stderr.log
+*.log

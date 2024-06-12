@@ -1,5 +1,3 @@
-import { NumberLiteralType } from "typescript";
-
 export interface Status {
   cpu_score: number;
   is_active: boolean;

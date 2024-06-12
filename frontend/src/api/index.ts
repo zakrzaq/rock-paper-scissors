@@ -1,6 +1,7 @@
 import { Status } from "../interfaces";
 
-const baseUrl = "http://localhost:5000";
+// const baseUrl = "http://localhost:5000";
+const baseUrl = "https://jukesites.com/apis/rpc";
 
 export const useFetch = async (url: string) => {
   let isError = undefined;
