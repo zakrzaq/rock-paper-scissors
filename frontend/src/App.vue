@@ -1,11 +1,38 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useFetch, usePost } from "./api";
 import { Status, Result } from "./interfaces";
+
+import Trophy from './assets/trophy.png'
+import Cross from './assets/cross.png'
+import Cpu from './assets/cpu.png'
+import User from './assets/user.png'
+import Rock from './assets/rock.png'
+import Paper from './assets/paper.png'
+import Scissors from './assets/scissors.png'
 
 const status = ref<Status | null>(null);
 const player = ref<string | null>(null);
 const result = ref<Result | null>(null);
+const resultValue = ref<string | null>();
+const cpuChoice = ref<string | null>();
+const playerChoice = ref<string | null>();
+
+const resultIcon = computed(() => {
+  if (resultValue.value == 'player_win') return Trophy
+  if (resultValue.value == 'cpu_win') return Cpu
+  return Cross
+})
+const cpuChoiceIcon = computed(() => {
+  if (result.value?.cpu_choice === 'rock') return Rock
+  if (result.value?.cpu_choice === 'paper') return Paper
+  return Scissors
+});
+const playerChoiceIcon = computed(() => {
+  if (result.value?.player_choice === 'rock') return Rock
+  if (result.value?.player_choice === 'paper') return Paper
+  return Scissors
+});
 
 const handleInputChange = (e: Event) => {
   const target = e.target as HTMLInputElement;
@@ -23,6 +50,9 @@ const submitPlayer = async () => {
 const playGame = async (choice: string) => {
   const { data } = await usePost("/play", { choice });
   result.value = data;
+  resultValue.value = result.value?.result
+  cpuChoice.value = result.value?.cpu_choice
+  playerChoice.value = result.value?.player_choice
 };
 
 const exitGame = async () => {
@@ -52,20 +82,29 @@ onMounted(async () => {
     </div>
 
     <div v-if="!!status && status.player">
-      <div>
-        <p>Player score: {{ result?.player_score }}</p>
-        <p>CPU score: {{ result?.cpu_score }}</p>
+      <div class="actions">
+        <button @click="playGame('rock')" class="btn-icon">
+          <img :src="Rock" class="icon" />
+        </button>
+        <button @click="playGame('paper')" class="btn-icon">
+          <img :src="Paper" class="icon" />
+        </button>
+        <button @click="playGame('scissors')" class="btn-icon">
+          <img :src="Scissors" class="icon" />
+        </button>
       </div>
-      <div>
-        <button @click="playGame('rock')">Rock</button>
-        <button @click="playGame('paper')">Paper</button>
-        <button @click="playGame('scissors')">Scissor</button>
+
+      <img v-if="resultValue" :src="resultIcon" alt="result icon" class="icon" />
+
+      <div v-if="!!result" class="stats">
+        <p><img :src="User" alt="user avatar" class="icon--small"></p>
+        <p><img :src="Cpu" alt="cpu avatar" class="icon--small"></p>
+        <p>{{ result?.player_score }}</p>
+        <p>{{ result?.cpu_score }}</p>
+        <p><img :src="playerChoiceIcon" alt="" class="icon--small" /></p>
+        <p><img :src="cpuChoiceIcon" alt="" class="icon--small" /></p>
       </div>
-      <p v-if="!!result">
-        You chose: {{ result.player_choice }} and CPU chose:
-        {{ result.cpu_choice }}
-      </p>
-      <p v-if="!!result">Result: {{ result.result }}</p>
+
     </div>
 
     <div v-if="!!status && !!status.player">
@@ -74,4 +113,34 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.stats {
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(2, 200px);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.btn-icon {
+  min-width: 90px;
+  min-height: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon {
+  max-width: 50px;
+  height: auto;
+}
+
+.icon--small {
+  max-width: 25px;
+  height: auto;
+}
+</style>
